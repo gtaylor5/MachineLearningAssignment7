@@ -61,13 +61,13 @@ public class State {
      **********************************/
     
     void printState(){
-        System.out.print("(");
+        Main.writer.print("(");
         for(int i = 0; i < stateAsArray.length; i++){
             if(i == stateAsArray.length-1){
-                System.out.print(stateAsArray[i]+") ");
+                Main.writer.print(stateAsArray[i]+") ");
                 return;
             }
-            System.out.print(stateAsArray[i] + ",");
+            Main.writer.print(stateAsArray[i] + ",");
         }
     }
     

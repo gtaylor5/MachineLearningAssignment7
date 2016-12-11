@@ -41,9 +41,9 @@ public class Action{
      **********************************/
     
     public void printAction(){
-        System.out.print("(");
-        System.out.print(actionAsArray[0]+",");
-        System.out.print(actionAsArray[1]+")");
+        Main.writer.print("(");
+        Main.writer.print(actionAsArray[0]+",");
+        Main.writer.print(actionAsArray[1]+")");
     }
     
 }

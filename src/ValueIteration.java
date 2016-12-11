@@ -16,6 +16,8 @@ public class ValueIteration {
     
     boolean badCrash = false;
     
+    
+    
     public static void main(String[] args) {
         String[] tracks = {"R-track.txt"/*, "O-track.txt", "R-track.txt"*/};
         for(String track : tracks){
@@ -57,8 +59,9 @@ public class ValueIteration {
         int[] startLocation = r.randomStart(); // random start location for agent
         String[][] trackCopy = deepCopy(r.trackMakeUp); // copy map for printing
         State s = new State(startLocation[0], startLocation[1],0,0); // set initial state with speed equal to zero
-        System.out.print(i + " Starting State: ");
+        Main.writer.print(i + " Starting State: ");
         s.printState(); // print state
+        Main.writer.println();
         trackCopy[startLocation[1]][startLocation[0]] = Integer.toString(i); // fill map with current step.
         i++; // incremement.
         
@@ -66,8 +69,12 @@ public class ValueIteration {
         
         while(!r.endLocations.contains(s.position) && i < 10000){ // while we havent crossed the finishline, and the number of steps  < 100 simulate
             String[] arr = r.randomEnd();
-            if(Math.abs(s.stateAsArray[1]-Integer.parseInt(arr[1])) == 1 && Math.abs(s.stateAsArray[0]-Integer.parseInt(arr[0])) < 3){
-                System.out.println("SUCCESSFULLY NAVIGATED");
+            if(Math.abs((s.stateAsArray[1]+s.stateAsArray[3]))-Integer.parseInt(arr[1]) <= 0 && Math.abs(s.stateAsArray[0]-Integer.parseInt(arr[0])) < 3
+            		&& !r.trackName.equalsIgnoreCase("R-track")){
+                Main.writer.println("SUCCESSFULLY NAVIGATED");
+                Main.writer.println();
+                printArray(trackCopy, 5); // print track after loop completes.
+                Main.writer.println();
                 return i;
             }
             // copy most recent valid position
@@ -77,21 +84,21 @@ public class ValueIteration {
             //get action based on current state.
             
             Action a = policy.get(s.stateAsString);
-            System.out.print(i + " Action: ");
+            Main.writer.print(i + " Action: ");
             a.printAction();
             
             //move agent to new state.
             
             s.move(a);
-            System.out.print(" -> ");
+            Main.writer.print(" -> ");
             s.printState();
-            System.out.println();
+            Main.writer.println();
             
             //if new state is a wall execute soft crash
             if(r.isWall(s)){
                 if(temp != null){
                     int[] newStart = r.randomStart();
-                    System.out.print("CRASH! RESTARTING AT: ");
+                    Main.writer.print("CRASH! RESTARTING AT: ");
                     if(!badCrash){
                         s.stateAsArray[0] = temp.stateAsArray[0]; // newStart[0] for hard crash
                         s.stateAsArray[1] = temp.stateAsArray[1]; // newStart[1] for hard crash
@@ -103,6 +110,7 @@ public class ValueIteration {
                     s.setPosition();
                     s.reStringifyState();
                     s.printState();
+                    Main.writer.println();
                     continue;
                 }
             }else{
@@ -111,9 +119,9 @@ public class ValueIteration {
                 i++; //increment counter.
             }
         }
-        System.out.println();
+        Main.writer.println();
         printArray(trackCopy, 5); // print track after loop completes.
-        System.out.println();
+        Main.writer.println();
         return i;
     }
     
@@ -350,7 +358,7 @@ public class ValueIteration {
     
     public void printPolicy(){
         for(String s : policy.keySet()){
-            System.out.print(s);
+            Main.writer.print(s);
             policy.get(s).printAction();
         }
     }
@@ -431,16 +439,16 @@ public class ValueIteration {
                     buffer += " ";
                 }
                 if(s[i][j].equalsIgnoreCase("R")){
-                    System.out.print("-"+buffer);
+                    Main.writer.print("-"+buffer);
                 }else if(s[i][j].equalsIgnoreCase("W")){
-                    System.out.print("W"+buffer);
+                    Main.writer.print("W"+buffer);
                 }else if(s[i][j].equalsIgnoreCase("S")){
-                    System.out.print("S"+buffer);
+                    Main.writer.print("S"+buffer);
                 }else{
-                    System.out.print(s[i][j] + buffer);
+                    Main.writer.print(s[i][j] + buffer);
                 }
             }
-            System.out.println();
+            Main.writer.println();
         }
     }
     

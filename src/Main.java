@@ -1,48 +1,55 @@
-import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Main {
 
     public Main(String[] tracks){
-        
+        try {
+			executeValueIteration(tracks);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
+    static PrintWriter writer;
     
-    public void executeValueIteration(String[] tracks){
+    public void executeValueIteration(String[] tracks) throws IOException{
         for(String track : tracks){
+        	writer = new PrintWriter(new FileWriter(track.split("\\.")[0]+"Results.txt",true));
             ArrayList<Integer> numberOfIterations = new ArrayList<Integer>();
             ArrayList<Integer> simulationResults = new ArrayList<Integer>();
-            for(int i = 0; i < 10; i++){
-                try {
-                    System.out.println(track + " : ");
-                    System.out.println();
-                    RaceTrack r = RaceTrack.initializeTrack(track);
-                    r.setActions();
-                    r.printTrack();
-                    System.out.println();
-                    ValueIteration vi = new ValueIteration();
-                    vi.r = r;
-                    vi.initializeStates();
-                    if(track.equalsIgnoreCase("O-track.txt")){
-                        vi.ep = 0.000000001;
-                        vi.gamma = .5;
-                    }else if(track.equalsIgnoreCase("L-track.txt")){
-                        vi.ep = 0.000000001;
-                        vi.gamma = .4;
-                    }
-                    numberOfIterations.add(vi.valueIteration());
-                    for(int j = 0; j < 10; j++){
-                        simulationResults.add(vi.simulate());
-                    }
+            writer.println(track + " : ");
+            writer.println();
+            RaceTrack r = RaceTrack.initializeTrack(track);
+            r.setActions();
+            r.printTrack();
+            writer.println();
+            for(int i = 0; i < 1; i++){
                     
-                } catch (FileNotFoundException e) {
-                    System.out.println("Track could not be found");
+                ValueIteration vi = new ValueIteration();
+                vi.r = r;
+                vi.initializeStates();
+                if(track.equalsIgnoreCase("O-track.txt")){
+                    vi.ep = 0.000000001;
+                    vi.gamma = .5;
+                }else if(track.equalsIgnoreCase("L-track.txt")){
+                    vi.ep = 0.000000001;
+                    vi.gamma = .4;
                 }
+                numberOfIterations.add(vi.valueIteration());
+                for(int j = 0; j < 10; j++){
+                    simulationResults.add(vi.simulate());
+                }
+
             }
-            System.out.println("The average number of iterations for Value Iteration on " + track.split("\\.")[0] + ": "
+            writer.println("The average number of iterations for Value Iteration on " + track.split("\\.")[0] + ": "
                     + calculateAverages(numberOfIterations));
-            System.out.println("The average number of moves from start to finish on " + track.split("\\.")[0] + ": "
+            writer.println("The average number of moves from start to finish on " + track.split("\\.")[0] + ": "
                     + calculateAverages(simulationResults));
+            writer.close();
         }
     }
     
@@ -53,5 +60,11 @@ public class Main {
         }
         return sum / (double) arr.size();
     }
+    
+    public static void main(String[] args) {
+		String[] tracks = {"L-track.txt", "O-track.txt", "R-track.txt"};
+		@SuppressWarnings("unused")
+		Main m = new Main(tracks);
+	}
     
 }

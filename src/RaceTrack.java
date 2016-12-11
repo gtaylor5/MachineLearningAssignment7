@@ -15,6 +15,7 @@ public class RaceTrack {
     int trackHeight = 0; //y-direction
     int trackWidth = 0; //x-direction
     
+    String trackName = "";
     
     /**************************************
      * 
@@ -33,6 +34,7 @@ public class RaceTrack {
             r.trackHeight = Integer.parseInt(line[0]);
             r.trackWidth = Integer.parseInt(line[1]);
             r.trackMakeUp = new String[r.trackHeight][r.trackWidth];
+            r.trackName = path.split("\\.")[0];
         }
         //fill track
         int i = 0;
@@ -106,14 +108,14 @@ public class RaceTrack {
         for(int i = 0; i < trackMakeUp.length; i++){
             for(int j = 0; j < trackMakeUp[i].length; j++){
                 if(startLocations.contains(new Point(i,j))){
-                    System.out.print("S ");
+                    Main.writer.print("S ");
                 }else if(endLocations.contains(new Point(i,j))){
-                    System.out.print("F ");
+                    Main.writer.print("F ");
                 }else{
-                    System.out.print(trackMakeUp[i][j] + " ");
+                    Main.writer.print(trackMakeUp[i][j] + " ");
                 }
             }
-            System.out.println();
+            Main.writer.println();
         }
     }
     
