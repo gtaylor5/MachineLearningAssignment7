@@ -10,7 +10,7 @@ public class ValueIteration {
     HashMap<String, State> futureValue = new HashMap<String, State>();
     HashMap<String, Action> policy = new HashMap<String, Action>();
     
-    double ep = .000000001;
+    double ep = .0001;
     double gamma = .2;
     RaceTrack r;
     
@@ -19,7 +19,7 @@ public class ValueIteration {
     
     
     public static void main(String[] args) {
-        String[] tracks = {"R-track.txt"/*, "O-track.txt", "R-track.txt"*/};
+        String[] tracks = {/*"O-track.txt", "O-track.txt",*/ "R-track.txt"};
         for(String track : tracks){
             try {
                 System.out.println(track + " : ");
@@ -67,9 +67,10 @@ public class ValueIteration {
         
         State temp = new State(); // initialize empty state for future use.
         
-        while(!r.endLocations.contains(s.position) && i < 10000){ // while we havent crossed the finishline, and the number of steps  < 100 simulate
+        while(!r.endLocations.contains(s.position) && i < 100){ // while we havent crossed the finishline, and the number of steps  < 100 simulate
             String[] arr = r.randomEnd();
-            if(Math.abs((s.stateAsArray[1]+s.stateAsArray[3]))-Integer.parseInt(arr[1]) <= 0 && Math.abs(s.stateAsArray[0]-Integer.parseInt(arr[0])) < 3
+            double distanceFromFinish = Math.abs((s.stateAsArray[1]-Integer.parseInt(arr[1])));
+            if(distanceFromFinish - Math.abs(s.stateAsArray[3]) <= 0 && Math.abs(s.stateAsArray[0]-Integer.parseInt(arr[0])) < 3
             		&& !r.trackName.equalsIgnoreCase("R-track")){
                 Main.writer.println("SUCCESSFULLY NAVIGATED");
                 Main.writer.println();

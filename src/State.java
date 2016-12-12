@@ -71,6 +71,17 @@ public class State {
         }
     }
     
+    void printState(int t){
+        System.out.print("(");
+        for(int i = 0; i < stateAsArray.length; i++){
+            if(i == stateAsArray.length-1){
+                System.out.print(stateAsArray[i]+") ");
+                return;
+            }
+            System.out.print(stateAsArray[i] + ",");
+        }
+    }
+    
     /***********************************
      * 
      *    re-encode string

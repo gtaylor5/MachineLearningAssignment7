@@ -22,7 +22,7 @@ public class QLearning {
         try {
             r = RaceTrack.initializeTrack("L-track.txt");
             r.setActions();
-            r.printTrack();
+            //r.printTrack();
             QLearning q = new QLearning();
             q.r = r;
             q.initializeStates();
@@ -34,64 +34,70 @@ public class QLearning {
         
     }
     
+    /***********************************
+     * 
+     *    Attempt at q learning algo.
+     * 
+     **********************************/
+    
     public void executeQLearningAlgo(){
-        
-        //int[] start = r.randomStart(); // random start location
-        
-        int i = 0;
-        Date date = new Date();
-        double max = 0;
-        do{
-            System.out.println(i);
-            long start = date.getTime();
-            int j = 0;
-            for(State s : states){
-                j++;
-                ArrayList<StateActionPair> SAPs = new ArrayList<StateActionPair>();
-                for(StateActionPair sap : this.sap){
-                    if(sap.stateAsString.equalsIgnoreCase(s.stateAsString)){
-                        SAPs.add(sap);
+        for(String loc : r.startLocations){ // episodes
+            String[] pt = loc.split(",");
+            int[] start = {Integer.parseInt(pt[0]), Integer.parseInt(pt[1])}; // start location
+            State starts = new State(start[0],start[1],0,0); // random start state.
+            StateActionPair racer = new StateActionPair(starts,new Action(0,0)); // racers start state
+            racer.printState(1);
+            System.out.println();
+            int i = 0;// episode counter.
+            double max = 0;
+            do{
+                
+                //get all state-action pairs at racers location
+                ArrayList<StateActionPair> list = new ArrayList<StateActionPair>();
+                for(StateActionPair sa : sap){
+                    if(sa.stateAsString.equalsIgnoreCase(racer.stateAsString)){
+                        list.add(sa);
                     }
                 }
-                double maxDif = Double.NEGATIVE_INFINITY;
-                for(StateActionPair sap : SAPs){
-                    State temp = new State(sap.updateSpeedAndLocation(sap.a));
-                    ArrayList<StateActionPair> futureSAPs = new ArrayList<StateActionPair>();
-                    
-                    for(StateActionPair sap1 : this.sap){
-                        if(sap1.stateAsString.equalsIgnoreCase(temp.stateAsString)){
-                            futureSAPs.add(sap1);
-                        }
-                    }
-                    
-                    
-                    for(StateActionPair sap1 : futureSAPs){
-                        if(sap1.qValue > max){
-                            max = sap1.qValue;
-                        }
-                    }
-                    double current = sap.qValue;
-                    double newVal = 0;
-                    if(r.isWall(sap)){
-                        sap.qValue = sap.qValue + eta*(-100 + gamma*(max - sap.qValue)); // bigger cost for hitting wall
-                        newVal = sap.qValue;
-                    }else {
-                        sap.qValue = sap.qValue + eta*(getCost(sap) + gamma*(max - sap.qValue));
-                    }
-                    if(Math.abs(current-newVal) > max){
-                        max = Math.abs(current-newVal);
+                
+                // find the maximum action based on q
+                
+                double maxVal = Double.NEGATIVE_INFINITY;
+                StateActionPair temp = new StateActionPair();
+                for(StateActionPair sap : list){
+                    if(sap.qValue > maxVal){
+                        temp = new StateActionPair(sap);
                     }
                 }
-                System.out.println(j);
-            }
-            long end = date.getTime();
-            long diff = end-start;
-            long diffSeconds = diff / 1000 % 60;  
-            long diffMinutes = diff / (60 * 1000) % 60; 
-            System.out.println(diffMinutes +":"+diffSeconds);
-            i++;
-        }while(max > .00001);
+                
+                list.clear();
+                
+                //find maximum find the max q in the future state.
+                
+                temp.updateSpeedAndLocation(temp.a);
+                double maxVal2 = Double.NEGATIVE_INFINITY;
+                for(StateActionPair sa : sap){
+                    if(sa.stateAsString.equalsIgnoreCase(temp.stateAsString)){
+                        if(sa.qValue > maxVal2){
+                            maxVal2 = sa.qValue;
+                        }
+                    }
+                }
+                
+                //update racer
+                
+                temp.qValue += eta*(-1 + gamma*(maxVal - maxVal2));
+                racer = new StateActionPair(temp);
+                i++;
+            }while(!r.endLocations.contains(racer.position)); // stopping criteria
+        }
     }
+    
+    /***********************************
+     * 
+     *    print q values
+     * 
+     **********************************/
     
     void printQVals(){
         for(StateActionPair s: sap){
@@ -240,12 +246,24 @@ public class QLearning {
         return map;
     } 
     
+    /***********************************
+     * 
+     *    cost function
+     * 
+     **********************************/
+    
     public int getCost(State s){
         if(r.endLocations.contains(Integer.toString(s.stateAsArray[0]) + Integer.toString(s.stateAsArray[1]))){
             return 0;
         }
         return -1;
     }
+    
+    /***********************************
+     * 
+     *    initialize states
+     * 
+     **********************************/
     
     public void initializeStates(){
         int height = r.trackHeight;
@@ -272,6 +290,12 @@ public class QLearning {
         }
     }
 
+    /***********************************
+     * 
+     *    initialize state action pairs
+     * 
+     **********************************/
+    
     public void initializeSAPs(){
         for(State state : states){
             for(String key : r.actions.keySet()){
